@@ -33,9 +33,10 @@ int main()
 
     servaddr.sin_family = AF_INET; 
     servaddr.sin_port = htons(PORT); 
+    //change the server ip address here
     servaddr.sin_addr.s_addr = inet_addr("115.145.179.144");
 
-    //start
+    //start time
     gettimeofday(&start, NULL); 
 
     if (connect(sockfd, (SA*)&servaddr, sizeof(servaddr)) != 0) 
@@ -59,12 +60,13 @@ int main()
         fwrite(buffer, 1, bytes, file); 
     } 
 
-    //end
+    //end time
     gettimeofday(&end, NULL); 
 
     fclose(file); 
     close(sockfd); 
     
+    //calculate the delay
     double delay = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_usec - start.tv_usec) / 1000.0; 
     printf("Total delay: %.2f ms\n", delay); 
 
