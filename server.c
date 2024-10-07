@@ -19,19 +19,22 @@
 #define   WIDTH   640                      
 #define   HEIGHT  480                      
 #define   FMT     V4L2_PIX_FMT_YUYV        
-#define   COUNT   3                        
+#define   COUNT   1                        
 
 #define   SA      struct sockaddr
 #define   PORT    8000
 
 void capture(int connfd)
 {
-	struct timeval start;
-    unsigned char *datas[COUNT];            // buffer address
+	struct timeval start, end;
+    unsigned char *buffers[COUNT];            // buffer address
 	int ret, i;
 	int fd;
-	//gettimeofday(&start, NULL);
+
+	//start time: open the camera
+	gettimeofday(&start, NULL);
 	//printf("Start time: %ld seconds, %ld microseconds\n", start.tv_sec, start.tv_usec);
+	
 	/* 1st: open camera device */
 	fd = open("/dev/video0", O_RDWR);       
 	if (-1 == fd)
@@ -100,8 +103,8 @@ void capture(int connfd)
 		//rintf("buf[%d]: len = %d offset: %d\n", i, buff.length, buff.m.offset);
 		
 		/* map each buffer to the current process */
-		datas[i] = mmap(NULL, buff.length, PROT_READ, MAP_SHARED, fd, buff.m.offset);
-		if (MAP_FAILED == datas[i])            
+		buffers[i] = mmap(NULL, buff.length, PROT_READ, MAP_SHARED, fd, buff.m.offset);
+		if (MAP_FAILED == buffers[i])            
 		{
 			perror("mmap failed");
 			return;
@@ -141,21 +144,37 @@ void capture(int connfd)
 	{
 		fprintf(stderr, "open write file failed.");
 	}
-	fwrite(datas[buff.index], buff.bytesused, 1, fl);
+	fwrite(buffers[buff.index], buff.bytesused, 1, fl);
     */
 
     /* 8th: send the image to client */
     //size_t image_size = buff.bytesused;
-    write(connfd,datas[buff.index], buff.bytesused);
-    printf("image sent.\n");
+    write(connfd, buffers[buff.index], buff.bytesused);
+
+
+	//end time: complete the sending
+    gettimeofday(&end, NULL); 
+
+	printf("image sent.\n");
 
     for(i = 0; i < COUNT; i++)
     {
-        munmap(datas[i],buff.length);
+        munmap(buffers[i],buff.length);
+    }
+
+	//Stop the stream
+	ret = ioctl(fd, VIDIOC_STREAMOFF, &on);      
+    if (-1 == ret) {
+        perror("ioctl VIDIOC_STREAM OFF");
+        return -1;
     }
 
 	//fclose(fl);                                
-	close(fd);            
+	close(fd); 
+
+	//calculate the delay
+    double delay = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_usec - start.tv_usec) / 1000.0; 
+    printf("Sending delay: %.2f ms\n", delay);            
 
     return;
 }

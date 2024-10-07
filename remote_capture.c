@@ -15,7 +15,7 @@
 #define   WIDTH   640                      
 #define   HEIGHT  480                      
 #define   FMT     V4L2_PIX_FMT_YUYV        
-#define   COUNT   3                        
+#define   COUNT   1                       
 
 
 int main(int argc, char **argv)
@@ -127,6 +127,9 @@ int main(int argc, char **argv)
 		perror("ioctl dequeue");
 		return -1;
 	}
+
+	//end time: before saving the file
+	gettimeofday(&end, NULL); 
 	
 	
     FILE *fl;
@@ -138,11 +141,15 @@ int main(int argc, char **argv)
 	fwrite(datas[buff.index], buff.bytesused, 1, fl);
     
 
-    /* 8th: send the image to client */
-    //size_t image_size = buff.bytesused;
-     gettimeofday(&end, NULL); 
+	fclose(fl);  
 
-	fclose(fl);                                
+	//Stop the stream
+	ret = ioctl(fd, VIDIOC_STREAMOFF, &on);      
+    if (-1 == ret) {
+        perror("ioctl VIDIOC_STREAM OFF");
+        return -1;
+    }
+	                             
 	close(fd);  
 
         

@@ -36,14 +36,18 @@ int main()
     //change the server ip address here
     servaddr.sin_addr.s_addr = inet_addr("115.145.179.144");
 
-    //start time
+    //connection start time
     gettimeofday(&start, NULL); 
 
     if (connect(sockfd, (SA*)&servaddr, sizeof(servaddr)) != 0) 
     { 
         perror("connection with the server failed...\n"); 
         exit(0); 
-    } 
+    }
+
+    
+    //connection end time
+    gettimeofday(&end, NULL);  
     
     snprintf(filename, sizeof(filename), "%ld_%ld.yuyv", start.tv_sec, start.tv_usec);
     FILE *file = fopen(filename, "wb"); 
@@ -53,7 +57,7 @@ int main()
         close(sockfd); 
         return -1; 
     } 
-    
+
     int bytes; 
     while ((bytes = read(sockfd, buffer, BUFSIZE)) > 0) 
     {
@@ -61,14 +65,14 @@ int main()
     } 
 
     //end time
-    gettimeofday(&end, NULL); 
+    //gettimeofday(&end, NULL); 
 
     fclose(file); 
     close(sockfd); 
     
     //calculate the delay
     double delay = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_usec - start.tv_usec) / 1000.0; 
-    printf("Total delay: %.2f ms\n", delay); 
+    printf("Connection delay: %.2f ms\n", delay); 
 
     return 0; 
 }
