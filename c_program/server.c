@@ -166,7 +166,7 @@ void capture(int connfd)
 	ret = ioctl(fd, VIDIOC_STREAMOFF, &on);      
     if (-1 == ret) {
         perror("ioctl VIDIOC_STREAM OFF");
-        return -1;
+        return;
     }
 
 	//fclose(fl);                                
