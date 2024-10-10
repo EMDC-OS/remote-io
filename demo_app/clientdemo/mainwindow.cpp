@@ -14,6 +14,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->setupUi(this);
 
+    QProcess unameProcess;
+    unameProcess.start("uname", QStringList() << "-r");
+    unameProcess.waitForFinished();
+    kernelVersion = unameProcess.readAllStandardOutput().trimmed();
+
+    //qDebug() << "Kernel Version: " << kernelVersion;
+
     //connect(ui->searchButton, &QPushButton::clicked, this, &MainWindow::on_searchButton_click);
     connect(ui->DeviceList, &QListWidget::itemDoubleClicked, this, &MainWindow::onItemDoubleClicked);
 }
@@ -26,7 +33,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_searchButton_clicked()
 {
-    QString serverIP = ui->IPText->text();
+    serverIP = ui->IPText->text();
 
 
     if (serverIP.isEmpty()) {
@@ -53,10 +60,10 @@ void MainWindow::on_searchButton_clicked()
         }
     }
 
-    QProcess unameProcess;
-    unameProcess.start("uname", QStringList() << "-r");
-    unameProcess.waitForFinished();
-    QString kernelVersion = unameProcess.readAllStandardOutput().trimmed();
+    //QProcess unameProcess;
+    //unameProcess.start("uname", QStringList() << "-r");
+    //unameProcess.waitForFinished();
+    //QString kernelVersion = unameProcess.readAllStandardOutput().trimmed();
 
     QString command = QString("/usr/lib/linux-tools/%1/usbip list -r %2").arg(kernelVersion).arg(serverIP);
 
@@ -107,5 +114,39 @@ void MainWindow::onItemDoubleClicked(QListWidgetItem *item)
 {
     QString clickedText = item->text();
 
-    QMessageBox::information(this, "Device Info", "You clicked on:\n" + clickedText);
+    QString busID = clickedText.section(':', 0, 0).trimmed();
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Bind Device",
+                                      QString("Do you want to bind this device (Bus ID: %1)?").arg(busID),
+                                      QMessageBox::Yes | QMessageBox::No);
+    if(reply == QMessageBox::Yes){
+
+        if (serverIP.isEmpty()) {
+            QMessageBox::warning(this, "Input Error", "Please enter server IP address again.");
+            return;
+        }
+
+
+        //sudo /usr/lib/linux-tools/$(uname -r)/usbip attach -r <server IP address> -b <Device bus ID>
+        QString command = QString("sudo /usr/lib/linux-tools/%1/usbip attach -r %2 -b %3").arg(kernelVersion).arg(serverIP).arg(busID);
+
+
+
+        QProcess process;
+        process.start(command);
+        process.waitForFinished();
+
+        QString result = process.readAllStandardOutput();
+        QString error = process.readAllStandardError();
+
+
+        if (!error.isEmpty() || !result.isEmpty()) {
+            QMessageBox::warning(this, "Command Error", "Error executing usbip command:\n" + error);
+            return;
+        }
+
+    }
+
+
 }

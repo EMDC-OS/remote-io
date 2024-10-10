@@ -10,6 +10,7 @@ bool executeModprobeCommand()
 {
     QProcess process;
     QString command = "pkexec modprobe vhci-hcd";
+    //QString command = "sudo modprobe vhci-hcd";
 
     process.start(command);
     process.waitForFinished();
