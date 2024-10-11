@@ -21,7 +21,8 @@ public:
 
 private slots:
     void on_searchButton_clicked();
-    void onItemDoubleClicked(QListWidgetItem *item);
+    void on_unattachItemDoubleClicked(QListWidgetItem *item);
+    void on_attachItemDoubleClicked(QListWidgetItem *item);
 
 private:
     Ui::MainWindow *ui;

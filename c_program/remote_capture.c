@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 {	
 
     struct timeval start,end;
-    unsigned char *datas[COUNT];            // buffer address
+    unsigned char *buffers[COUNT];            // buffer address
 	int ret, i;
 	int fd;
 	gettimeofday(&start, NULL);
@@ -95,8 +95,8 @@ int main(int argc, char **argv)
 		//rintf("buf[%d]: len = %d offset: %d\n", i, buff.length, buff.m.offset);
 		
 		/* map each buffer to the current process */
-		datas[i] = mmap(NULL, buff.length, PROT_READ, MAP_SHARED, fd, buff.m.offset);
-		if (MAP_FAILED == datas[i])            
+		buffers[i] = mmap(NULL, buff.length, PROT_READ, MAP_SHARED, fd, buff.m.offset);
+		if (MAP_FAILED == buffers[i])            
 		{
 			perror("mmap failed");
 			return -1;
@@ -138,7 +138,7 @@ int main(int argc, char **argv)
 	{
 		fprintf(stderr, "open write file failed.");
 	}
-	fwrite(datas[buff.index], buff.bytesused, 1, fl);
+	fwrite(buffers[buff.index], buff.bytesused, 1, fl);
     
 
 	fclose(fl);  

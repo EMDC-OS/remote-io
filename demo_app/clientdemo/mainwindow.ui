@@ -51,11 +51,16 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>550</x>
-      <y>80</y>
-      <width>151</width>
-      <height>111</height>
+      <x>430</x>
+      <y>110</y>
+      <width>271</width>
+      <height>51</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>8</pointsize>
+     </font>
     </property>
     <property name="lineWidth">
      <number>1</number>
@@ -106,7 +111,7 @@
       <x>50</x>
       <y>190</y>
       <width>611</width>
-      <height>281</height>
+      <height>131</height>
      </rect>
     </property>
     <property name="font">
@@ -123,7 +128,7 @@
      <rect>
       <x>50</x>
       <y>160</y>
-      <width>141</width>
+      <width>201</width>
       <height>31</height>
      </rect>
     </property>
@@ -133,7 +138,43 @@
      </font>
     </property>
     <property name="text">
-     <string>USB Device List:</string>
+     <string>Found USB Device List:</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="LinkList">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>390</y>
+      <width>611</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>360</y>
+      <width>201</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Attach USB Device List:</string>
     </property>
    </widget>
   </widget>

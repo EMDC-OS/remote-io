@@ -1,11 +1,15 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+#include "capturewindow.h"
 #include <QListWidgetItem>
 #include <QProcess>
 #include <QMessageBox>
 #include <QRegularExpression>
 
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -22,7 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
     //qDebug() << "Kernel Version: " << kernelVersion;
 
     //connect(ui->searchButton, &QPushButton::clicked, this, &MainWindow::on_searchButton_click);
-    connect(ui->DeviceList, &QListWidget::itemDoubleClicked, this, &MainWindow::onItemDoubleClicked);
+    connect(ui->DeviceList, &QListWidget::itemDoubleClicked, this, &MainWindow::on_unattachItemDoubleClicked);
+    connect(ui->LinkList, &QListWidget::itemDoubleClicked, this, &MainWindow::on_attachItemDoubleClicked);
 }
 
 MainWindow::~MainWindow()
@@ -110,7 +115,7 @@ void MainWindow::on_searchButton_clicked()
 }
 
 
-void MainWindow::onItemDoubleClicked(QListWidgetItem *item)
+void MainWindow::on_unattachItemDoubleClicked(QListWidgetItem *item)
 {
     QString clickedText = item->text();
 
@@ -144,9 +149,33 @@ void MainWindow::onItemDoubleClicked(QListWidgetItem *item)
         if (!error.isEmpty() || !result.isEmpty()) {
             QMessageBox::warning(this, "Command Error", "Error executing usbip command:\n" + error);
             return;
+        }else{
+            QListWidgetItem *removedItem = ui->DeviceList->takeItem(ui->DeviceList->row(item));
+
+            if (removedItem)
+                ui->LinkList->addItem(clickedText);
+
         }
 
     }
 
+
+}
+
+
+void MainWindow::on_attachItemDoubleClicked(QListWidgetItem *item)
+{
+
+    if (access("/dev/video0", F_OK) == -1) {
+        QMessageBox::warning(this, "Device Error", "No camera device found.");
+        return;
+    }else{
+        capturewindow *Capturewindow = new capturewindow(this);  // this（MainWindow）
+        Capturewindow->setWindowFlags(Qt::Window);
+        Capturewindow->setAttribute(Qt::WA_DeleteOnClose);
+        Capturewindow->show();
+
+
+    }
 
 }
